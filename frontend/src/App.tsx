@@ -7,19 +7,31 @@ const App: React.FC = () => {
   const { liveData, historical } = useMonitoring();
 
   return (
-    <div className="container my-4">
-      <h1 className="mb-4">Monitoring Dashboard</h1>
+    <>
+      <div className="container my-4">
+        <h1 className="mb-4">Monitoring Dashboard</h1>
 
-      <section className="mb-5">
-        <h3>Live Status</h3>
-        <LiveView liveData={liveData} />
-      </section>
+        {/* Live Status Section */}
+        <section className="mb-5">
+          <h3>Live Status</h3>
+          {liveData.length === 0 ? (
+            <p>Loading live data...</p>
+          ) : (
+            <LiveView liveData={liveData} />
+          )}
+        </section>
 
-      <section>
-        <h3>Historical Data (Past Week)</h3>
-        <HistoricalCharts historical={historical} />
-      </section>
-    </div>
+        {/* Historical Charts Section */}
+        <section>
+          <h3>Historical Data (Past Week)</h3>
+          {historical.length === 0 ? (
+            <p>Loading historical data...</p>
+          ) : (
+            <HistoricalCharts historical={historical} />
+          )}
+        </section>
+      </div>
+    </>
   );
 };
 
