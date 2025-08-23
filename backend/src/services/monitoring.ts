@@ -11,7 +11,6 @@ class MonitoringService {
     this.io = io;
   }
 
-  // Check a single region
   async checkEndpoint(region: Region): Promise<StatusCheck> {
     const startTime = Date.now();
     const timestamp = new Date();
@@ -20,8 +19,8 @@ class MonitoringService {
       console.log(`Checking ${region.name}...`);
 
       const response: AxiosResponse = await axios.get(region.endpoint, {
-        timeout: 10000,
-        validateStatus: (status) => status < 500,
+        timeout: 10000, // 10 second timeout
+        validateStatus: (status) => status < 500, // Don't throw for 4xx errors
       });
 
       const responseTime = Date.now() - startTime;
@@ -60,19 +59,20 @@ class MonitoringService {
     }
   }
 
-  // Check all regions
   async checkAllEndpoints(): Promise<StatusCheck[]> {
     console.log(`\nStarting monitoring cycle at ${new Date().toISOString()}`);
 
     try {
-      const results = await Promise.all(
-        REGIONS.map((r) => this.checkEndpoint(r))
+      // Check all endpoints in parallel for faster execution
+      const promises = REGIONS.map((region) => this.checkEndpoint(region));
+      const results = await Promise.all(promises);
+
+      // Save all results to database
+      await Promise.all(
+        results.map((result) => FirebaseService.saveStatusCheck(result))
       );
 
-      // Save to Firebase
-      await Promise.all(results.map((r) => FirebaseService.saveStatusCheck(r)));
-
-      // Emit live update
+      // Emit real-time updates to connected clients
       if (this.io) {
         this.io.emit("status-update", results);
         console.log("Emitted status update to clients");
@@ -86,77 +86,38 @@ class MonitoringService {
     }
   }
 
-  // Get health summary for all regions (most recent check)
   async getHealthSummary() {
     try {
-      const recentChecks = await FirebaseService.getRecentChecks(undefined, 1); // last hour
+      const recentChecks = await FirebaseService.getRecentChecks(undefined, 1); // Last hour
 
-      return REGIONS.map((region) => {
+      const summary = REGIONS.map((region) => {
         const regionChecks = recentChecks.filter(
-          (c) => c.region === region.name
+          (check) => check.region === region.name
         );
-        if (regionChecks.length === 0)
+
+        if (regionChecks.length === 0) {
           return {
             region: region.name,
             status: "unknown",
             lastCheck: null,
             responseTime: null,
           };
+        }
 
-        const latest = regionChecks[0];
+        const latestCheck = regionChecks[0]; // Most recent
+
         return {
           region: region.name,
-          status: latest.isOnline ? "online" : "offline",
-          lastCheck: latest.timestamp,
-          responseTime: latest.responseTime,
-          statusCode: latest.statusCode,
+          status: latestCheck.isOnline ? "online" : "offline",
+          lastCheck: latestCheck.timestamp,
+          responseTime: latestCheck.responseTime,
+          statusCode: latestCheck.statusCode,
         };
       });
+
+      return summary;
     } catch (error) {
       console.error("Error getting health summary:", error);
-      throw error;
-    }
-  }
-
-  // --- Daily Aggregates for the last 7 days ---
-  async getDailyAggregatesByRegion(): Promise<
-    Record<string, { date: string; avgResponseTime: number }[]>
-  > {
-    try {
-      // Fetch all checks for last 7 days
-      const recentChecks = await FirebaseService.getRecentChecks(
-        undefined,
-        24 * 7
-      );
-
-      // Group by region and day
-      const grouped: Record<string, Record<string, StatusCheck[]>> = {};
-      recentChecks.forEach((check) => {
-        const day = check.timestamp.toISOString().slice(0, 10); // YYYY-MM-DD
-        if (!grouped[check.region]) grouped[check.region] = {};
-        if (!grouped[check.region][day]) grouped[check.region][day] = [];
-        grouped[check.region][day].push(check);
-      });
-
-      // Compute averages, only last 7 days per region
-      const result: Record<
-        string,
-        { date: string; avgResponseTime: number }[]
-      > = {};
-      Object.entries(grouped).forEach(([region, days]) => {
-        const sortedDays = Object.keys(days).sort();
-        const last7Days = sortedDays.slice(-7);
-        result[region] = last7Days.map((day) => {
-          const checks = days[day];
-          const avgResponseTime =
-            checks.reduce((sum, c) => sum + c.responseTime, 0) / checks.length;
-          return { date: day, avgResponseTime };
-        });
-      });
-
-      return result;
-    } catch (error) {
-      console.error("Error getting daily aggregates:", error);
       throw error;
     }
   }

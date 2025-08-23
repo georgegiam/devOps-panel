@@ -120,15 +120,6 @@ cron.schedule("0 * * * *", async () => {
   }
 });
 
-app.get("/api/daily-aggregates-by-region", async (req, res) => {
-  try {
-    const aggregates = await MonitoringService.getDailyAggregatesByRegion();
-    res.json(aggregates);
-  } catch (error) {
-    res.status(500).json({ error: "Failed to fetch daily aggregates" });
-  }
-});
-
 // Daily cleanup of old data - runs at 2 AM
 cron.schedule("0 2 * * *", async () => {
   try {
