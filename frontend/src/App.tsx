@@ -40,7 +40,7 @@ const App: React.FC = () => {
                   data-bs-toggle="modal"
                   data-bs-target="#exampleModal"
                 >
-                  Support
+                  <i className="fa-solid fa-circle-info me-1"></i> Support
                 </button>
               </li>
             </ul>
@@ -51,7 +51,7 @@ const App: React.FC = () => {
         <h2 className="mb-4">Monitoring Dashboard</h2>
         <hr />
         <div className="alert alert-warning" role="alert">
-          The endpoints live status cards updates automatically every hour.
+          The endpoints live status cards update automatically every hour.
         </div>
 
         {/* Live Status Section */}

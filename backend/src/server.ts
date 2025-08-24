@@ -111,14 +111,19 @@ app.post("/api/check-now", async (req, res) => {
   }
 });
 
-// Scheduled monitoring - every hour
-cron.schedule("0 * * * *", async () => {
-  try {
-    await MonitoringService.checkAllEndpoints();
-  } catch (error) {
-    console.error("Scheduled monitoring failed:", error);
-  }
-});
+// Scheduled monitoring - every hour (checks for primary server)
+if (process.env.IS_PRIMARY_MONITOR === "true") {
+  cron.schedule("0 * * * *", async () => {
+    console.log("Primary server running monitoring cycle...");
+    try {
+      await MonitoringService.checkAllEndpoints();
+    } catch (error) {
+      console.error("Scheduled monitoring failed:", error);
+    }
+  });
+} else {
+  console.log("This server is secondary — skipping monitoring cron.");
+}
 
 // Daily cleanup of old data - runs at 2 AM
 cron.schedule("0 2 * * *", async () => {
