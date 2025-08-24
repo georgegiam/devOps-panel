@@ -31,7 +31,7 @@ MonitoringService.setSocketServer(io);
 
 // Socket.IO connection handling
 io.on("connection", (socket) => {
-  console.log(`Client connected: ${socket.id}`);
+  console.log(`👤 Client connected: ${socket.id}`);
 
   // Send current health summary to new client
   MonitoringService.getHealthSummary()
@@ -43,7 +43,7 @@ io.on("connection", (socket) => {
     });
 
   socket.on("disconnect", () => {
-    console.log(`Client disconnected: ${socket.id}`);
+    console.log(`👤 Client disconnected: ${socket.id}`);
   });
 
   // Handle client requesting recent data
@@ -94,7 +94,7 @@ app.get("/api/recent/:region?", async (req, res) => {
 // Manual trigger for testing
 app.post("/api/check-now", async (req, res) => {
   try {
-    console.log("Manual monitoring check triggered");
+    console.log("🔄 Manual monitoring check triggered");
     const results = await MonitoringService.checkAllEndpoints();
     res.json({
       message: "Check completed successfully",
@@ -111,8 +111,8 @@ app.post("/api/check-now", async (req, res) => {
   }
 });
 
-// Scheduled monitoring - every hour
-cron.schedule("0 * * * *", async () => {
+// Scheduled monitoring - every 3 minutes
+cron.schedule("*/3 * * * *", async () => {
   try {
     await MonitoringService.checkAllEndpoints();
   } catch (error) {
@@ -123,7 +123,7 @@ cron.schedule("0 * * * *", async () => {
 // Daily cleanup of old data - runs at 2 AM
 cron.schedule("0 2 * * *", async () => {
   try {
-    console.log("Starting daily cleanup...");
+    console.log("🧹 Starting daily cleanup...");
     await FirebaseService.cleanupOldData();
   } catch (error) {
     console.error("Daily cleanup failed:", error);
@@ -132,10 +132,10 @@ cron.schedule("0 2 * * *", async () => {
 
 // Start server
 server.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-  console.log(`Monitoring 6 endpoints every 1 hour`);
-  console.log(`Data retention: 7 days`);
-  console.log(`WebSocket enabled for real time updates`);
+  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`📊 Monitoring 6 endpoints every 3 minutes`);
+  console.log(`🗃️  Data retention: 7 days`);
+  console.log(`🔗 WebSocket enabled for real-time updates`);
 
   // Run initial check
   setTimeout(() => {
