@@ -9,6 +9,20 @@ import styles from "../src/css/App.module.css";
 
 const App: React.FC = () => {
   const { liveData, historical } = useMonitoring();
+  const date = new Date();
+  const options: Intl.DateTimeFormatOptions = {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false, // 24-hour format
+  };
+
+  const formatted = new Intl.DateTimeFormat("en-GB", options)
+    .format(date)
+    .replace(",", ""); // remove the comma if desired
 
   return (
     <>
@@ -52,7 +66,22 @@ const App: React.FC = () => {
       </nav>
 
       <div className={`${styles.dashboard} container w-50 mb-5 mt-5`}>
-        <h2 className="mb-4">Monitoring Dashboard</h2>
+        <div className="d-flex mb-3">
+          <div className="me-auto align-self-center">
+            <h2>Monitoring Dashboard</h2>
+          </div>
+          <div className="align-self-center">
+            <h6>
+              {new Intl.DateTimeFormat("en-GB", {
+                weekday: "long",
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+              }).format(new Date())}
+            </h6>
+          </div>
+        </div>
+
         <hr />
         <div className="alert alert-warning" role="alert">
           <i className="fa-solid fa-circle-info me-2"></i> The endpoints live
