@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { useMonitoring } from "./hooks/useMonitoring";
 import LiveView from "./components/LiveView";
 import HistoricalCharts from "./components/HistoricalCharts";
@@ -10,9 +11,9 @@ const App: React.FC = () => {
     <>
       <nav className="navbar navbar-expand-lg bg-body-tertiary">
         <div className="container-fluid w-50">
-          <a className="navbar-brand" href="#">
+          <Link className="navbar-brand" to="/">
             DevOps Panel
-          </a>
+          </Link>
           <button
             className="navbar-toggler"
             type="button"
