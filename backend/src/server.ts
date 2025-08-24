@@ -125,16 +125,17 @@ if (process.env.IS_PRIMARY_MONITOR === "true") {
   console.log("This server is secondary — skipping monitoring cron.");
 }
 
-// Daily cleanup of old data - runs at 2 AM
-cron.schedule("0 2 * * *", async () => {
-  try {
-    console.log("Starting daily cleanup...");
-    await FirebaseService.cleanupOldData();
-  } catch (error) {
-    console.error("Daily cleanup failed:", error);
-  }
-});
-
+// Daily cleanup of old data - runs at 2 AM (checks for primary server)
+if (process.env.IS_PRIMARY_MONITOR === "true") {
+  cron.schedule("0 2 * * *", async () => {
+    try {
+      console.log("Starting daily cleanup...");
+      await FirebaseService.cleanupOldData();
+    } catch (error) {
+      console.error("Daily cleanup failed:", error);
+    }
+  });
+}
 // Start server
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
