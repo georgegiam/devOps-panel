@@ -31,6 +31,12 @@ const LiveView: React.FC<LiveViewProps> = ({ liveData }) => {
                 <strong>Last update:</strong>{" "}
                 {new Date(check.timestamp).toLocaleTimeString()}
               </p>
+              <p className="card-text">
+                <strong>Next update:</strong>{" "}
+                {new Date(
+                  new Date(check.timestamp).getTime() + 60 * 60 * 1000
+                ).toLocaleTimeString()}
+              </p>
             </div>
           </div>
         </div>

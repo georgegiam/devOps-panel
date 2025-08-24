@@ -11,6 +11,7 @@ class MonitoringService {
     this.io = io;
   }
 
+  // checking given endpoint
   async checkEndpoint(region: Region): Promise<StatusCheck> {
     const startTime = Date.now();
     const timestamp = new Date();
@@ -19,8 +20,8 @@ class MonitoringService {
       console.log(`Checking ${region.name}...`);
 
       const response: AxiosResponse = await axios.get(region.endpoint, {
-        timeout: 10000, // 10 second timeout
-        validateStatus: (status) => status < 500, // Don't throw for 4xx errors
+        timeout: 10000,
+        validateStatus: (status) => status < 500,
       });
 
       const responseTime = Date.now() - startTime;
@@ -59,20 +60,21 @@ class MonitoringService {
     }
   }
 
+  // checks all the given endpoints
   async checkAllEndpoints(): Promise<StatusCheck[]> {
     console.log(`\nStarting monitoring cycle at ${new Date().toISOString()}`);
 
     try {
-      // Check all endpoints in parallel for faster execution
+      // paraller checking of endpoints for faster execution
       const promises = REGIONS.map((region) => this.checkEndpoint(region));
       const results = await Promise.all(promises);
 
-      // Save all results to database
+      // save all results to database
       await Promise.all(
         results.map((result) => FirebaseService.saveStatusCheck(result))
       );
 
-      // Emit real-time updates to connected clients
+      // broadcast real time updates to connected clients
       if (this.io) {
         this.io.emit("status-update", results);
         console.log("Emitted status update to clients");
@@ -86,9 +88,10 @@ class MonitoringService {
     }
   }
 
+  // getting health summary for the last hour
   async getHealthSummary() {
     try {
-      const recentChecks = await FirebaseService.getRecentChecks(undefined, 1); // Last hour
+      const recentChecks = await FirebaseService.getRecentChecks(undefined, 1);
 
       const summary = REGIONS.map((region) => {
         const regionChecks = recentChecks.filter(
@@ -104,7 +107,7 @@ class MonitoringService {
           };
         }
 
-        const latestCheck = regionChecks[0]; // Most recent
+        const latestCheck = regionChecks[0];
 
         return {
           region: region.name,

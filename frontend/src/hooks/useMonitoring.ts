@@ -8,24 +8,24 @@ export function useMonitoring() {
   const [historical, setHistorical] = useState<StatusCheck[]>([]);
 
   useEffect(() => {
-    // Fetch initial health summary
+    // fetch initial health summary
     api
       .get<RegionSummary[]>("/api/health")
       .then((res) => setSummary(res.data))
       .catch(console.error);
 
-    // Fetch historical data (past week)
+    // fetch historical data
     api
       .get<StatusCheck[]>("/api/recent")
       .then((res) => setHistorical(res.data))
       .catch(console.error);
 
-    // WebSocket listener for live updates
+    // websocket listener for live updates
     const handleUpdate = (data: StatusCheck[]) => {
-      // Update live data
+      // update live data
       setLiveData(data);
 
-      // Append new data to historical array, keep last 7 days
+      // add new data to historical array (keep last 7 days)
       setHistorical((prev) => {
         const cutoff = new Date();
         cutoff.setDate(cutoff.getDate() - 7);
@@ -38,13 +38,13 @@ export function useMonitoring() {
 
     socket.on("status-update", handleUpdate);
 
-    // Cleanup listener on unmount
+    // cleanup listener on unmount
     return () => {
       socket.off("status-update", handleUpdate);
     };
   }, []);
 
-  // Stable live display: fallback to last known summary if no live data
+  // live display - fallback to last known summary if no live data
   const displayLiveData =
     liveData.length > 0
       ? liveData

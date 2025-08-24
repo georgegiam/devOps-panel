@@ -5,9 +5,9 @@ import { Server } from "socket.io";
 import cors from "cors";
 import cron from "node-cron";
 
-// Load environment variables FIRST
 dotenv.config();
 
+// services
 import MonitoringService from "./services/monitoring";
 import FirebaseService from "./services/firebase";
 
@@ -22,18 +22,16 @@ const io = new Server(server, {
 
 const PORT = process.env.PORT || 5000;
 
-// Middleware
 app.use(cors());
 app.use(express.json());
 
-// Set up Socket.IO for monitoring service
+// set up Socket.IO for monitoring service
 MonitoringService.setSocketServer(io);
 
-// Socket.IO connection handling
 io.on("connection", (socket) => {
   console.log(`Client connected: ${socket.id}`);
 
-  // Send current health summary to new client
+  // send current health summary to new client
   MonitoringService.getHealthSummary()
     .then((summary) => {
       socket.emit("health-summary", summary);
@@ -46,7 +44,7 @@ io.on("connection", (socket) => {
     console.log(`Client disconnected: ${socket.id}`);
   });
 
-  // Handle client requesting recent data
+  // handle client requesting recent data
   socket.on("get-recent-data", async (region?: string, hours: number = 24) => {
     try {
       const recentChecks = await FirebaseService.getRecentChecks(region, hours);
@@ -58,7 +56,7 @@ io.on("connection", (socket) => {
   });
 });
 
-// REST API Routes
+// server is running
 app.get("/", (req, res) => {
   res.json({
     message: "Server Monitoring API",
@@ -68,6 +66,7 @@ app.get("/", (req, res) => {
   });
 });
 
+// check the health for the last hour
 app.get("/api/health", async (req, res) => {
   try {
     const summary = await MonitoringService.getHealthSummary();
@@ -78,6 +77,7 @@ app.get("/api/health", async (req, res) => {
   }
 });
 
+// fetch recent data for an endpind (or all endpoints)
 app.get("/api/recent/:region?", async (req, res) => {
   try {
     const region = req.params.region;
@@ -91,7 +91,7 @@ app.get("/api/recent/:region?", async (req, res) => {
   }
 });
 
-// Manual trigger for testing
+// manual endpoint check (for testing)
 app.post("/api/check-now", async (req, res) => {
   try {
     console.log("Manual monitoring check triggered");
@@ -111,7 +111,7 @@ app.post("/api/check-now", async (req, res) => {
   }
 });
 
-// Scheduled monitoring - every hour (checks for primary server)
+// scheduled monitoring every hour (checks for primary server from .env)
 if (process.env.IS_PRIMARY_MONITOR === "true") {
   cron.schedule("0 * * * *", async () => {
     console.log("Primary server running monitoring cycle...");
@@ -125,7 +125,7 @@ if (process.env.IS_PRIMARY_MONITOR === "true") {
   console.log("This server is secondary — skipping monitoring cron.");
 }
 
-// Daily cleanup of old data - runs at 2 AM (checks for primary server)
+// daily cleanup of old data (runs at 2 am) (checks for primary server from .env)
 if (process.env.IS_PRIMARY_MONITOR === "true") {
   cron.schedule("0 2 * * *", async () => {
     try {
@@ -136,11 +136,9 @@ if (process.env.IS_PRIMARY_MONITOR === "true") {
     }
   });
 }
-// Start server
+// start server confirmation
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-  console.log(`Monitoring 6 endpoints hourly`);
-  console.log(`Data retention: 7 days`);
 
   // Run initial check
   setTimeout(() => {

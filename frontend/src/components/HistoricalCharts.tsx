@@ -16,7 +16,7 @@ interface HistoricalChartsProps {
 }
 
 const HistoricalCharts: React.FC<HistoricalChartsProps> = ({ historical }) => {
-  // Group data by region
+  // group data by region
   const grouped: Record<string, StatusCheck[]> = {};
   historical.forEach((check) => {
     if (!grouped[check.region]) grouped[check.region] = [];

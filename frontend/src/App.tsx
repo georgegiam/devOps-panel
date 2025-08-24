@@ -4,13 +4,16 @@ import { useMonitoring } from "./hooks/useMonitoring";
 import LiveView from "./components/LiveView";
 import HistoricalCharts from "./components/HistoricalCharts";
 
+// css
+import styles from "../src/css/App.module.css";
+
 const App: React.FC = () => {
   const { liveData, historical } = useMonitoring();
 
   return (
     <>
       <nav className="navbar navbar-expand-lg bg-body-tertiary">
-        <div className="container-fluid w-50">
+        <div className={`${styles.navContainer} container-fluid w-50`}>
           <Link className="navbar-brand" to="/">
             DevOps Panel
           </Link>
@@ -40,21 +43,23 @@ const App: React.FC = () => {
                   data-bs-toggle="modal"
                   data-bs-target="#exampleModal"
                 >
-                  <i className="fa-solid fa-circle-info me-1"></i> Support
+                  <i className="fa-solid fa-headphones me-1"></i> Support
                 </button>
               </li>
             </ul>
           </div>
         </div>
       </nav>
-      <div className="container w-50 mt-5">
+
+      <div className={`${styles.dashboard} container w-50 mb-5 mt-5`}>
         <h2 className="mb-4">Monitoring Dashboard</h2>
         <hr />
         <div className="alert alert-warning" role="alert">
-          The endpoints live status cards update automatically every hour.
+          <i className="fa-solid fa-circle-info me-2"></i> The endpoints live
+          status cards update automatically every hour.
         </div>
 
-        {/* Live Status Section */}
+        {/* live status  */}
         <div className="mt-4">
           <h4 className="mb-4">Endpoints Live Status</h4>
           {liveData.length === 0 ? (
@@ -64,12 +69,13 @@ const App: React.FC = () => {
           )}
         </div>
 
-        {/* Historical Charts Section */}
+        {/* historical charts */}
         <div className="mt-5">
           <h3 className="mb-4">Hourly Historical Data (Past Week)</h3>
           <div className="alert alert-warning" role="alert">
-            The endpoints charts update automatically every hour (at the top of
-            the hour) and retain data of the past 7 days.
+            <i className="fa-solid fa-circle-info me-2"></i> The endpoints
+            charts update automatically every hour (at the top of the hour) and
+            retain data of the past 7 days.
           </div>
           {historical.length === 0 ? (
             <p>Loading historical data...</p>
