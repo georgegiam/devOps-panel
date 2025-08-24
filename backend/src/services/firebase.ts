@@ -18,7 +18,7 @@ class FirebaseService {
         !process.env.FIREBASE_PRIVATE_KEY
       ) {
         throw new Error(
-          "Firebase environment variables are not set. Check your .env file."
+          "Firebase environment variables are not set (.env file error)."
         );
       }
 
@@ -45,7 +45,7 @@ class FirebaseService {
       };
 
       await this.db.collection("status-checks").add(cleanStatusCheck);
-      console.log(`✅ Saved status check for ${statusCheck.region}`);
+      console.log(`Saved status check for ${statusCheck.region}`);
     } catch (error) {
       console.error("Error saving status check:", error);
       throw error;
@@ -120,7 +120,7 @@ class FirebaseService {
       });
 
       await batch.commit();
-      console.log(`🗑️  Cleaned up ${snapshot.size} old records`);
+      console.log(`Cleaned up ${snapshot.size} old records`);
     } catch (error) {
       console.error("Error cleaning up old data:", error);
     }

@@ -16,7 +16,7 @@ class MonitoringService {
     const timestamp = new Date();
 
     try {
-      console.log(`🔍 Checking ${region.name}...`);
+      console.log(`Checking ${region.name}...`);
 
       const response: AxiosResponse = await axios.get(region.endpoint, {
         timeout: 10000, // 10 second timeout
@@ -37,7 +37,7 @@ class MonitoringService {
         stats: response.data || null,
       };
 
-      console.log(`✅ ${region.name}: ${response.status} (${responseTime}ms)`);
+      console.log(`${region.name}: ${response.status} (${responseTime}ms)`);
       return statusCheck;
     } catch (error: any) {
       const responseTime = Date.now() - startTime;
@@ -53,16 +53,14 @@ class MonitoringService {
       };
 
       console.log(
-        `❌ ${region.name}: Error - ${error.message} (${responseTime}ms)`
+        `${region.name}: Error - ${error.message} (${responseTime}ms)`
       );
       return statusCheck;
     }
   }
 
   async checkAllEndpoints(): Promise<StatusCheck[]> {
-    console.log(
-      `\n🚀 Starting monitoring cycle at ${new Date().toISOString()}`
-    );
+    console.log(`\nStarting monitoring cycle at ${new Date().toISOString()}`);
 
     try {
       // Check all endpoints in parallel for faster execution
@@ -77,7 +75,7 @@ class MonitoringService {
       // Emit real-time updates to connected clients
       if (this.io) {
         this.io.emit("status-update", results);
-        console.log("📡 Emitted status update to clients");
+        console.log("Emitted status update to clients");
       }
 
       console.log(`✨ Monitoring cycle completed successfully\n`);
