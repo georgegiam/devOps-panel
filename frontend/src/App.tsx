@@ -9,6 +9,8 @@ import styles from "../src/css/App.module.css";
 
 const App: React.FC = () => {
   const { liveData, historical } = useMonitoring();
+
+  // Current date and time formatted
   const date = new Date();
   const options: Intl.DateTimeFormatOptions = {
     weekday: "long",
@@ -19,10 +21,7 @@ const App: React.FC = () => {
     minute: "2-digit",
     hour12: false, // 24-hour format
   };
-
-  const formatted = new Intl.DateTimeFormat("en-GB", options)
-    .format(date)
-    .replace(",", "");
+  const formatted = new Intl.DateTimeFormat("en-GB", options).format(date);
 
   return (
     <>
@@ -43,13 +42,7 @@ const App: React.FC = () => {
             <span className="navbar-toggler-icon"></span>
           </button>
           <div className="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul className="navbar-nav me-auto mb-2 mb-lg-0">
-              {/* <li className="nav-item">
-                <a className="nav-link active" aria-current="page" href="#">
-                  Home
-                </a>
-              </li> */}
-            </ul>
+            <ul className="navbar-nav me-auto mb-2 mb-lg-0"></ul>
             <ul className="navbar-nav mb-2 mb-lg-0">
               <li className="nav-item">
                 <button
@@ -71,14 +64,7 @@ const App: React.FC = () => {
             <h2>Monitoring Dashboard</h2>
           </div>
           <div className="align-self-center">
-            <h6>
-              {new Intl.DateTimeFormat("en-GB", {
-                weekday: "long",
-                day: "numeric",
-                month: "long",
-                year: "numeric",
-              }).format(new Date())}
-            </h6>
+            <h6>{formatted}</h6>
           </div>
         </div>
 
