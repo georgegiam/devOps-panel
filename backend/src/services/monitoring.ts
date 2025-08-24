@@ -78,7 +78,7 @@ class MonitoringService {
         console.log("Emitted status update to clients");
       }
 
-      console.log(`✨ Monitoring cycle completed successfully\n`);
+      console.log(`Monitoring cycle completed successfully\n`);
       return results;
     } catch (error) {
       console.error("Error during monitoring cycle:", error);

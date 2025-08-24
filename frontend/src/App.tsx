@@ -34,21 +34,20 @@ const App: React.FC = () => {
             </ul>
             <ul className="navbar-nav mb-2 mb-lg-0">
               <li className="nav-item">
-                <a className="nav-link" href="#">
-                  About
-                </a>
-              </li>
-              <li className="nav-item">
-                <a className="nav-link" href="#">
+                <button
+                  className="nav-link"
+                  data-bs-toggle="modal"
+                  data-bs-target="#exampleModal"
+                >
                   Support
-                </a>
+                </button>
               </li>
             </ul>
           </div>
         </div>
       </nav>
       <div className="container w-50 mt-5">
-        <h2 className="mb-4">Devops Monitoring Dashboard</h2>
+        <h2 className="mb-4">Monitoring Dashboard</h2>
         <hr />
         <div className="alert alert-warning" role="alert">
           The endpoints live status cards updates automatically every hour.
@@ -76,6 +75,42 @@ const App: React.FC = () => {
           ) : (
             <HistoricalCharts historical={historical} />
           )}
+        </div>
+      </div>
+
+      <div
+        className="modal fade"
+        id="exampleModal"
+        aria-labelledby="exampleModalLabel"
+        aria-hidden="true"
+      >
+        <div className="modal-dialog">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h1 className="modal-title fs-5" id="exampleModalLabel">
+                Support
+              </h1>
+              <button
+                type="button"
+                className="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div className="modal-body">
+              For any enquiries please contact{" "}
+              <strong>g.giamouridis@soton.ac.uk</strong>
+            </div>
+            <div className="modal-footer">
+              <button
+                type="button"
+                className="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Close
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </>
