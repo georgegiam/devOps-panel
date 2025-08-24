@@ -22,7 +22,7 @@ const App: React.FC = () => {
 
   const formatted = new Intl.DateTimeFormat("en-GB", options)
     .format(date)
-    .replace(",", ""); // remove the comma if desired
+    .replace(",", "");
 
   return (
     <>
