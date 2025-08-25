@@ -55,6 +55,8 @@ export function useMonitoring() {
           responseTime: s.responseTime || 0,
           statusCode: s.statusCode || 0,
           isOnline: s.status === "online",
+          stats: "",
+          endpoint: "",
         }));
 
   return { liveData: displayLiveData, historical };
