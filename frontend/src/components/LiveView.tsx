@@ -1,7 +1,7 @@
 import type { StatusCheck } from "../types";
 import React from "react";
 
-/** Safely parse a JSON string; return null if invalid or empty */
+// parse a JSON string and return null if invalid or empty
 function safeParse(json: string | null): any | null {
   if (!json) return null;
   try {
@@ -11,7 +11,7 @@ function safeParse(json: string | null): any | null {
   }
 }
 
-/** Pretty-print JSON for the raw section */
+// pretty print JSON for the raw section
 function prettyJson(input: unknown): string {
   try {
     return JSON.stringify(input, null, 2);
@@ -20,7 +20,7 @@ function prettyJson(input: unknown): string {
   }
 }
 
-/** Badge helper */
+// badge helper
 function BoolBadge({ ok }: { ok: boolean }) {
   return ok ? (
     <span className="badge text-bg-success">Up</span>
@@ -40,8 +40,8 @@ const LiveView: React.FC<LiveViewProps> = ({ liveData }) => {
         const modalId = `details-${check.id}`;
         const parsed = safeParse(check.stats);
 
-        // Derive handy fields from parsed stats (optional)
-        const status = parsed?.status ?? (check.isOnline ? "ok" : "error");
+        // fields from parsed stats (optional)
+        // const status = parsed?.status ?? (check.isOnline ? "ok" : "error");
         const roles: string[] = Array.isArray(parsed?.roles)
           ? parsed.roles
           : [];
@@ -59,7 +59,6 @@ const LiveView: React.FC<LiveViewProps> = ({ liveData }) => {
           <div key={check.id} className="col-12 col-md-6 col-lg-4 mb-3">
             <div className="card shadow-sm h-100">
               <div className="card-body d-flex flex-column">
-                {/* Heading: endpoint name + online badge */}
                 <div className="d-flex align-items-start justify-content-between mb-2">
                   <h4 className="card-title mb-0">{check.region}</h4>
                   {check.isOnline ? (
@@ -69,7 +68,6 @@ const LiveView: React.FC<LiveViewProps> = ({ liveData }) => {
                   )}
                 </div>
 
-                {/* Quick glance info (only minimal on the card) */}
                 <p className="text-muted mb-3">
                   Last update: {new Date(check.timestamp).toLocaleTimeString()}
                 </p>
@@ -87,7 +85,7 @@ const LiveView: React.FC<LiveViewProps> = ({ liveData }) => {
               </div>
             </div>
 
-            {/* Details Modal */}
+            {/* start details modal */}
             <div
               className="modal fade"
               id={modalId}
@@ -98,7 +96,7 @@ const LiveView: React.FC<LiveViewProps> = ({ liveData }) => {
                 <div className="modal-content">
                   <div className="modal-header">
                     <h1 className="modal-title fs-5" id={`${modalId}-label`}>
-                      {check.region} — Details
+                      {check.region}
                     </h1>
                     <button
                       type="button"
@@ -109,7 +107,7 @@ const LiveView: React.FC<LiveViewProps> = ({ liveData }) => {
                   </div>
 
                   <div className="modal-body">
-                    {/* TOP SUMMARY */}
+                    {/* summary */}
                     <div className="mb-3">
                       <div className="row g-2">
                         <div className="col-sm-6">
@@ -124,10 +122,7 @@ const LiveView: React.FC<LiveViewProps> = ({ liveData }) => {
                                 <span className="badge text-bg-danger">
                                   Offline
                                 </span>
-                              )}{" "}
-                              <span className="text-muted">
-                                ({String(status)})
-                              </span>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -136,7 +131,7 @@ const LiveView: React.FC<LiveViewProps> = ({ liveData }) => {
                             <div className="fw-semibold">Endpoint URL</div>
                             <div className="mt-1">
                               <code className="text-break">
-                                {check.endpoint ?? "—"}
+                                {check.endpoint}
                               </code>
                             </div>
                           </div>
@@ -149,14 +144,14 @@ const LiveView: React.FC<LiveViewProps> = ({ liveData }) => {
                         </div>
                         <div className="col-sm-6">
                           <div className="p-2 border rounded">
-                            <div className="fw-semibold">Checked at</div>
+                            <div className="fw-semibold">Last check</div>
                             <div className="mt-1">{lastUpdateLocal}</div>
                           </div>
                         </div>
                       </div>
                     </div>
 
-                    {/* REQUEST METRICS */}
+                    {/* metrics */}
                     <div className="mb-3">
                       <div className="row g-2">
                         <div className="col-sm-6 col-lg-3">
@@ -188,7 +183,7 @@ const LiveView: React.FC<LiveViewProps> = ({ liveData }) => {
                       </div>
                     </div>
 
-                    {/* ROLES */}
+                    {/* roles */}
                     {roles.length > 0 && (
                       <div className="mb-3">
                         <div className="fw-semibold mb-1">Roles</div>
@@ -202,7 +197,7 @@ const LiveView: React.FC<LiveViewProps> = ({ liveData }) => {
                       </div>
                     )}
 
-                    {/* SERVICES */}
+                    {/* services */}
                     {services && Object.keys(services).length > 0 && (
                       <div className="mb-3">
                         <div className="fw-semibold mb-1">Services</div>
@@ -220,7 +215,7 @@ const LiveView: React.FC<LiveViewProps> = ({ liveData }) => {
                       </div>
                     )}
 
-                    {/* SERVER METRICS */}
+                    {/* server metrics */}
                     {(server?.cpus != null ||
                       server?.active_connections != null ||
                       sStats?.cpu_load != null ||
@@ -265,7 +260,7 @@ const LiveView: React.FC<LiveViewProps> = ({ liveData }) => {
                       </div>
                     )}
 
-                    {/* WORKERS TABLE */}
+                    {/* workers table */}
                     {workers.length > 0 && (
                       <div className="mb-3">
                         <div className="fw-semibold mb-1">Workers</div>
@@ -306,7 +301,7 @@ const LiveView: React.FC<LiveViewProps> = ({ liveData }) => {
                       </div>
                     )}
 
-                    {/* RAW JSON (collapsible) */}
+                    {/* raw json */}
                     <details>
                       <summary className="mb-2">Show raw JSON</summary>
                       <pre className="mb-0 p-2 border rounded bg-light">
@@ -329,7 +324,7 @@ const LiveView: React.FC<LiveViewProps> = ({ liveData }) => {
                 </div>
               </div>
             </div>
-            {/* End Modal */}
+            {/* end details modal */}
           </div>
         );
       })}

@@ -91,19 +91,26 @@ class MonitoringService {
   // getting health summary for the last hour
   async getHealthSummary() {
     try {
-      const recentChecks = await FirebaseService.getRecentChecks(undefined, 1);
+      const recentChecks = await FirebaseService.getRecentChecks(undefined, 1); // last hour
 
       const summary = REGIONS.map((region) => {
-        const regionChecks = recentChecks.filter(
-          (check) => check.region === region.name
-        );
+        const regionChecks = recentChecks
+          .filter((check) => check.region === region.name)
+          // make sure most-recent is first, just in case
+          .sort(
+            (a, b) =>
+              new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+          );
 
         if (regionChecks.length === 0) {
           return {
             region: region.name,
-            status: "unknown",
+            status: "unknown" as const,
             lastCheck: null,
             responseTime: null,
+            statusCode: null,
+            endpoint: "",
+            stats: "",
           };
         }
 
@@ -111,10 +118,14 @@ class MonitoringService {
 
         return {
           region: region.name,
-          status: latestCheck.isOnline ? "online" : "offline",
+          status: latestCheck.isOnline
+            ? ("online" as const)
+            : ("offline" as const),
           lastCheck: latestCheck.timestamp,
           responseTime: latestCheck.responseTime,
           statusCode: latestCheck.statusCode,
+          endpoint: latestCheck.endpoint ?? "",
+          stats: latestCheck.stats ?? "",
         };
       });
 
