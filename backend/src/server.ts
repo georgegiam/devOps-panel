@@ -155,7 +155,7 @@ if (process.env.IS_PRIMARY_MONITOR === "true") {
     }
   });
 
-  console.log("✅ Primary server: All scheduled jobs configured");
+  console.log("Primary server: All scheduled jobs configured");
 } else {
   console.log("Secondary server: Skipping all scheduled jobs");
 }
