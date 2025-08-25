@@ -15,4 +15,6 @@ export interface RegionSummary {
   lastCheck: string | null;
   responseTime: number | null;
   statusCode: number | null;
+  endpoint: string;
+  stats: string;
 }
