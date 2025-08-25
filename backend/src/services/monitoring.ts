@@ -60,31 +60,49 @@ class MonitoringService {
     }
   }
 
-  // checks all the given endpoints
+  // checks all the given endpoints with distributed lock protection
   async checkAllEndpoints(): Promise<StatusCheck[]> {
-    console.log(`\nStarting monitoring cycle at ${new Date().toISOString()}`);
+    console.log(
+      `\nAttempting to start monitoring cycle at ${new Date().toISOString()}`
+    );
+
+    // Try to acquire distributed lock
+    const lockAcquired = await FirebaseService.acquireMonitoringLock();
+    if (!lockAcquired) {
+      console.log(
+        "Could not acquire monitoring lock - another process is running the check"
+      );
+      return [];
+    }
 
     try {
-      // paraller checking of endpoints for faster execution
+      console.log(
+        "Starting monitoring cycle with distributed lock acquired..."
+      );
+
+      // Parallel checking of endpoints for faster execution
       const promises = REGIONS.map((region) => this.checkEndpoint(region));
       const results = await Promise.all(promises);
 
-      // save all results to database
-      await Promise.all(
-        results.map((result) => FirebaseService.saveStatusCheck(result))
-      );
+      // Use batch save to be more efficient and atomic
+      await FirebaseService.saveStatusChecks(results);
 
-      // broadcast real time updates to connected clients
+      // Broadcast real time updates to connected clients
       if (this.io) {
         this.io.emit("status-update", results);
         console.log("Emitted status update to clients");
       }
 
-      console.log(`Monitoring cycle completed successfully\n`);
+      console.log(
+        `Monitoring cycle completed successfully at ${new Date().toISOString()}\n`
+      );
       return results;
     } catch (error) {
       console.error("Error during monitoring cycle:", error);
       throw error;
+    } finally {
+      // Always release the lock, even if an error occurred
+      await FirebaseService.releaseMonitoringLock();
     }
   }
 

@@ -77,7 +77,7 @@ app.get("/api/health", async (req, res) => {
   }
 });
 
-// fetch recent data for an endpind (or all endpoints)
+// fetch recent data for an endpoint (or all endpoints)
 app.get("/api/recent/:region?", async (req, res) => {
   try {
     const region = req.params.region;
@@ -96,6 +96,17 @@ app.post("/api/check-now", async (req, res) => {
   try {
     console.log("Manual monitoring check triggered");
     const results = await MonitoringService.checkAllEndpoints();
+
+    if (results.length === 0) {
+      res.json({
+        message:
+          "Check was not performed (likely because another process is already running a check)",
+        results: [],
+        note: "This prevents duplicate monitoring cycles across multiple processes",
+      });
+      return;
+    }
+
     res.json({
       message: "Check completed successfully",
       results: results.map((r) => ({
@@ -111,22 +122,21 @@ app.post("/api/check-now", async (req, res) => {
   }
 });
 
-// scheduled monitoring every hour (checks for primary server from .env)
+// scheduled monitoring every hour
 if (process.env.IS_PRIMARY_MONITOR === "true") {
+  console.log("Primary server: Setting up scheduled jobs...");
+
+  // Main monitoring cycle - runs at the top of every hour
   cron.schedule("0 * * * *", async () => {
-    console.log("Primary server running monitoring cycle...");
+    console.log("Scheduled monitoring cycle triggered");
     try {
       await MonitoringService.checkAllEndpoints();
     } catch (error) {
       console.error("Scheduled monitoring failed:", error);
     }
   });
-} else {
-  console.log("This server is secondary — skipping monitoring cron.");
-}
 
-// daily cleanup of old data (runs at 2 am) (checks for primary server from .env)
-if (process.env.IS_PRIMARY_MONITOR === "true") {
+  // Daily cleanup of old data (runs at 2 AM)
   cron.schedule("0 2 * * *", async () => {
     try {
       console.log("Starting daily cleanup...");
@@ -135,16 +145,44 @@ if (process.env.IS_PRIMARY_MONITOR === "true") {
       console.error("Daily cleanup failed:", error);
     }
   });
+
+  // Clean up expired locks every 30 minutes
+  cron.schedule("*/30 * * * *", async () => {
+    try {
+      await FirebaseService.cleanupExpiredLocks();
+    } catch (error) {
+      console.error("Lock cleanup failed:", error);
+    }
+  });
+
+  console.log("✅ Primary server: All scheduled jobs configured");
+} else {
+  console.log("Secondary server: Skipping all scheduled jobs");
 }
+
 // start server confirmation
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+  console.log(
+    `Process ID for distributed locking: Internal ID will be generated`
+  );
 
-  // Run initial check
-  setTimeout(() => {
-    MonitoringService.checkAllEndpoints().catch((error) =>
-      console.error("Initial check failed:", error)
-    );
+  // Run initial check after a short delay
+  // The distributed lock will prevent duplicates even if multiple processes try this
+  setTimeout(async () => {
+    try {
+      console.log("Running initial monitoring check...");
+      const results = await MonitoringService.checkAllEndpoints();
+      if (results.length === 0) {
+        console.log(
+          "Initial check was skipped (another process may have been running a check)"
+        );
+      } else {
+        console.log("Initial check completed successfully");
+      }
+    } catch (error) {
+      console.error("Initial check failed:", error);
+    }
   }, 5000);
 });
 
