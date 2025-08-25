@@ -5,6 +5,8 @@ export interface StatusCheck {
   responseTime: number;
   statusCode: number;
   isOnline: boolean;
+  endpoint: string;
+  stats: string;
 }
 
 export interface RegionSummary {

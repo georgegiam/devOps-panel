@@ -35,7 +35,7 @@ class MonitoringService {
         responseTime,
         statusCode: response.status,
         isOnline,
-        stats: response.data || null,
+        stats: response.data ? JSON.stringify(response.data) : null,
       };
 
       console.log(`${region.name}: ${response.status} (${responseTime}ms)`);
@@ -50,7 +50,7 @@ class MonitoringService {
         responseTime,
         statusCode: 0,
         isOnline: false,
-        error: error.message || "Unknown error",
+        stats: null,
       };
 
       console.log(

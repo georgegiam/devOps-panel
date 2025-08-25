@@ -6,7 +6,7 @@ export interface StatusCheck {
   responseTime: number;
   statusCode: number;
   isOnline: boolean;
-  stats?: any;
+  stats: string | null;
   error?: string;
 }
 
