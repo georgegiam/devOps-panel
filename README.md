@@ -15,7 +15,6 @@ A Node.js + TypeScript service that monitors endpoints, stores results in a data
 - React / TypeScript / Bootstrap
 - WebSocket (Socket.IO)
 - Database (Firestore)
--
 
 ## Disclaimer
 
